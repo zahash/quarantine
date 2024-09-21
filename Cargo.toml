@@ -2,6 +2,10 @@
 name = "quarantine"
 version = "0.1.0"
 edition = "2021"
+authors = ["zahash <zahash.z@gmail.com>"]
+description = "quarantine"
+license = "MIT"
+repository = "https://github.com/zahash/quarantine/"
 
 [dependencies]
 anyhow = "1"
