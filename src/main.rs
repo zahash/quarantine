@@ -18,8 +18,34 @@ async fn main() -> anyhow::Result<()> {
     let Quarantine {
         image_name,
         persist: _,
+        runtime,
     } = Quarantine::parse();
+
     let docker = Docker::connect_with_local_defaults()?;
+    let info = docker.info().await?;
+    let default_runtime = info.default_runtime.unwrap_or_default();
+    let available_runtimes = info.runtimes.unwrap_or_default();
+
+    let runtime = match runtime {
+        Some(runtime) => match available_runtimes.contains_key(&runtime) {
+            true => {
+                tracing::info!("using runtime `{}`", runtime);
+                runtime
+            }
+            false => {
+                tracing::warn!(
+                    "runtime `{}` not found! reverting to the default `{}`",
+                    runtime,
+                    default_runtime
+                );
+                default_runtime
+            }
+        },
+        None => {
+            tracing::info!("using default runtime `{}`", default_runtime);
+            default_runtime
+        }
+    };
 
     // pull image
     {
@@ -103,6 +129,7 @@ async fn main() -> anyhow::Result<()> {
             .map_err(|_| anyhow!("current working directory path is not valid unicode"))?;
 
         let host_config = HostConfig {
+            runtime: Some(runtime),
             binds: Some(vec![format!("{}:/quarantine", current_dir)]),
             ..Default::default()
         };
@@ -118,7 +145,7 @@ async fn main() -> anyhow::Result<()> {
 
         let container = docker.create_container(options, config).await?;
         tracing::info!(
-            "starting container: {} with name: {}",
+            "starting new container: {} :: name: {}",
             container.id,
             container_name
         );
@@ -126,7 +153,7 @@ async fn main() -> anyhow::Result<()> {
             .start_container(&container.id, None::<StartContainerOptions<String>>)
             .await?;
         tracing::info!(
-            "container started: {} with name: {}",
+            "container started: {} :: name: {}",
             container.id,
             container_name
         );
@@ -210,15 +237,16 @@ async fn main() -> anyhow::Result<()> {
         };
     }
 
+    // Stop and clean up the container after use
     {
-        // Stop and clean up the container after use
         tracing::info!("stopping container: {}", container_name);
         docker.stop_container(&container_name, None).await?;
+
         tracing::info!("removing container: {}", container_name);
         docker.remove_container(&container_name, None).await?;
     }
 
-    tracing::info!("DONE !!");
+    tracing::info!("done");
     Ok(())
 }
 
@@ -227,6 +255,10 @@ struct Quarantine {
     /// image name with (optional)tag. eg: `python:latest` or `golang` or `node:20.17.0` or `node:20.17.0-alpine3.19`
     #[arg(short, long)]
     image_name: String,
+
+    /// which container runtime to use (eg: `runsc`). will revert to the default runtime if the one specified is not found.
+    #[arg(short, long)]
+    runtime: Option<String>,
 
     /// persist container after use
     #[arg(short, long, default_value_t = false)]
