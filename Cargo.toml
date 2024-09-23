@@ -1,6 +1,6 @@
 [package]
 name = "quarantine"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 authors = ["zahash <zahash.z@gmail.com>"]
 description = "quarantine"
