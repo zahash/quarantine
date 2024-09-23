@@ -38,6 +38,15 @@ async fn main() -> anyhow::Result<()> {
                     runtime,
                     default_runtime
                 );
+                tracing::warn!(
+                    "available runtimes are {}",
+                    available_runtimes
+                        .keys()
+                        .into_iter()
+                        .map(|key| format!("`{}`", key))
+                        .collect::<Vec<String>>()
+                        .join(" ")
+                );
                 default_runtime
             }
         },
