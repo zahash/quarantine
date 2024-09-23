@@ -17,7 +17,6 @@ async fn main() -> anyhow::Result<()> {
 
     let Quarantine {
         image_name,
-        persist: _,
         runtime,
     } = Quarantine::parse();
 
@@ -268,8 +267,4 @@ struct Quarantine {
     /// which container runtime to use (eg: `runsc`). will revert to the default runtime if the one specified is not found.
     #[arg(short, long)]
     runtime: Option<String>,
-
-    /// persist container after use
-    #[arg(short, long, default_value_t = false)]
-    persist: bool,
 }
