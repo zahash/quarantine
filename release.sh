@@ -1,6 +1,9 @@
+rm -r dist
+mkdir -p dist
+
 set -e
 
-mkdir -p dist
+cargo clean
 
 # linux
 rustup target add x86_64-unknown-linux-gnu
