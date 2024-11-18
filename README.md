@@ -19,9 +19,20 @@ quickly and easily create sandbox to run untrusted code. Made with ❤️ using 
 > `quarantine` is a command-line tool that quickly and easily gives you access to a sandboxed environment to run untrusted code.
 It takes your current working directory, mounts it inside a docker container, and provides a shell interface.
 
-## Download
+## Installation
 
-[https://github.com/zahash/quarantine/releases](https://github.com/zahash/quarantine/releases)
+### Arch Linux
+
+[quarantine](https://aur.archlinux.org/packages/quarantine) is available as a package in the [AUR](https://aur.archlinux.org).<br>
+You can install it with your preferred [AUR helper](https://wiki.archlinux.org/title/AUR_helpers). example:
+
+```sh
+paru -S quarantine
+```
+
+### Other
+
+[Download the binary](https://github.com/zahash/quarantine/releases)
 
 ( or )
 
